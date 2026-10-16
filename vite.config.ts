@@ -1,11 +1,13 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
+  const isVercel = process.env.VERCEL === '1';
+
   return {
-    base: '/la-boom/',
+    base: isVercel ? '/' : process.env.VITE_BASE_PATH || '/la-boom/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
@@ -14,7 +16,7 @@ export default defineConfig(() => {
     },
     server: {
       hmr: {
-        overlay: false
+        overlay: false,
       },
       watch: null,
     },
