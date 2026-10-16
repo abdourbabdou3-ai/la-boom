@@ -8,7 +8,7 @@ const Admin = React.lazy(() => import('./Admin'));
 export default function App() {
   return (
     <StoreProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<Storefront />} />
           <Route
