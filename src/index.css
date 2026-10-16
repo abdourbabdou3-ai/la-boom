@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-tajawal: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+
+  --color-gray-50: #101114;
+  --color-gray-100: #292B30;
+  --color-gray-200: #292B30;
+  --color-gray-300: #C7A27A;
+  --color-gray-400: #C7A27A;
+  --color-gray-500: #FFFFFF;
+  --color-gray-600: #FFFFFF;
+  --color-gray-700: #FFFFFF;
+  --color-gray-800: #FFFFFF;
+  --color-gray-900: #FFFFFF;
+
+  --color-blue-50: #292B30;
+  --color-blue-100: #292B30;
+  --color-blue-200: #C7A27A;
+  --color-blue-300: #C7A27A;
+  --color-blue-400: #C7A27A;
+  --color-blue-500: #C7A27A;
+  --color-blue-600: #C7A27A;
+  --color-blue-700: #101114;
+  --color-blue-800: #101114;
+  --color-blue-900: #101114;
+  --color-blue-950: #101114;
+
+  --color-yellow-50: #292B30;
+  --color-yellow-100: #292B30;
+  --color-yellow-200: #D8FF3E;
+  --color-yellow-300: #D8FF3E;
+  --color-yellow-400: #D8FF3E;
+  --color-yellow-500: #D8FF3E;
+  --color-yellow-600: #D8FF3E;
+  --color-yellow-700: #101114;
+  --color-yellow-800: #101114;
+  --color-yellow-900: #101114;
+  --color-yellow-950: #101114;
+}
+
+:root {
+  --brand-charcoal: #101114;
+  --brand-white: #FFFFFF;
+  --brand-gold: #C7A27A;
+  --brand-surface: #292B30;
+  --brand-lime: #D8FF3E;
+}
+
+body {
+  font-family: var(--font-tajawal);
+  background-color: var(--brand-charcoal);
+  color: var(--brand-white);
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]),
+  textarea,
+  select
+):focus {
+  background-color: var(--brand-charcoal);
+  color: var(--brand-white);
+  caret-color: var(--brand-white);
+}
+
+[class~="bg-white"] {
+  background-color: var(--brand-surface);
+}
+
+[class*="bg-white/10"] {
+  background-color: rgb(41 43 48 / 0.1);
+}
+
+[class*="bg-white/80"] {
+  background-color: rgb(41 43 48 / 0.8);
+}
+
+[class*="bg-white/95"] {
+  background-color: rgb(41 43 48 / 0.95);
+}
+
+[class*="bg-[#111111]"] {
+  background-color: var(--brand-surface);
+}
+
+[class~="text-[#1A2B4C]"] {
+  color: var(--brand-white);
+}
+
+[class*="text-[#F15C64]"] {
+  color: var(--brand-gold);
+}
+
+[class*="bg-[#1A2B4C]"] {
+  background-color: var(--brand-charcoal);
+}
+
+[class*="bg-[#F15C64]"] {
+  background-color: var(--brand-gold);
+}
+
+[class*="bg-[#FDE9EB]"] {
+  background-color: rgb(199 162 122 / 0.16);
+}
+
+[class*="border-[#F15C64]"] {
+  border-color: var(--brand-gold);
+}
+
+[class*="text-[#315BFF]"] {
+  color: var(--brand-gold);
+}
+
+[class*="bg-[#315BFF]"] {
+  background-color: var(--brand-gold);
+}
+
+[class*="border-[#315BFF]"] {
+  border-color: var(--brand-gold);
+}
+
+[class*="bg-[#050505]"] {
+  background-color: var(--brand-charcoal);
+}
+
+[class*="bg-[#FEF8F5]"] {
+  background-color: var(--brand-charcoal);
+}
+
+[class*="border-[#FEF8F5]"] {
+  border-color: var(--brand-surface);
+}
+
+[stroke="#F15C64"] {
+  stroke: var(--brand-gold);
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
