@@ -1,5 +1,7 @@
 ﻿import type { Request, Response } from "express";
-import { getServerApp } from "../server.ts";
+// @ts-ignore -- generated server bundle is created by npm run build.
+import serverBundle from "../dist/server.cjs";
+const { getServerApp } = serverBundle as { getServerApp: () => Promise<any> };
 
 export default async function handler(req: Request, res: Response) {
   const incomingUrl = req.url || "/";
@@ -21,4 +23,5 @@ export default async function handler(req: Request, res: Response) {
     res.status(500).json({ error: "API initialization failed" });
   }
 }
+
 
