@@ -1,5 +1,5 @@
-import type { Request, Response } from "express";
-import { getServerApp } from "../server";
+﻿import type { Request, Response } from "express";
+import { getServerApp } from "../server.ts";
 
 export default async function handler(req: Request, res: Response) {
   const incomingUrl = req.url || "/";
@@ -21,3 +21,4 @@ export default async function handler(req: Request, res: Response) {
     res.status(500).json({ error: "API initialization failed" });
   }
 }
+
