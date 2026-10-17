@@ -508,7 +508,7 @@ process.on('unhandledRejection', (reason: any, promise) => {
     }
 });
 
-async function startServer() {
+async function createServerApp() {
   await initDb();
   // Ensure the column exists if it was created before this change
   try {
@@ -530,7 +530,6 @@ async function startServer() {
   } catch(e) {}
   
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
   
   app.disable("x-powered-by");
   app.use((req, res, next) => {
@@ -1210,9 +1209,28 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  return app;
 }
 
-startServer();
+let serverAppPromise;
+
+export function getServerApp() {
+  if (!serverAppPromise) {
+    serverAppPromise = createServerApp();
+  }
+  return serverAppPromise;
+}
+
+if (process.env.VERCEL !== "1") {
+  void getServerApp()
+    .then((app) => {
+      const PORT = Number(process.env.PORT) || 3000;
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error("Server startup failed:", error);
+      process.exitCode = 1;
+    });
+}

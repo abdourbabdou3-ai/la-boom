@@ -12,7 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Storefront />} />
           <Route
-            path="/عياشيادمينمتجر2007"
+            path="/عبدوادمينمتجر2007"
             element={
               <React.Suspense fallback={null}>
                 <Admin />
