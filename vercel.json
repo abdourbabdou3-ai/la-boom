@@ -1,23 +1,14 @@
-﻿{
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "functions": {
     "api/index.ts": {
       "includeFiles": "صور الفيديو الاول/**"
     }
   },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/api",
