@@ -17,14 +17,26 @@ const client = createClient({
   url: process.env.DB_URL,
   authToken: process.env.DB_TOKEN,
 });
-const adminSessions = new Map<string, number>();
 const failedLoginAttempts = new Map<string, { count: number; resetAt: number }>();
 
-function isAdminSessionValid(req: express.Request): boolean {
-    const token = req.header("authorization")?.replace(/^Bearer\s+/i, "");
-    const expiresAt = token ? adminSessions.get(token) : undefined;
-    if (!token || !expiresAt || expiresAt <= Date.now()) {
-        if (token) adminSessions.delete(token);
+async function isAdminSessionValid(req: express.Request): Promise<boolean> {
+    const authorization = req.header("authorization");
+    const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!token) {
+        return false;
+    }
+    const result = await client.execute({
+        sql: "SELECT expiresAt FROM admin_sessions WHERE token = ?",
+        args: [token],
+    });
+    const expiresAt = Number(result.rows[0]?.expiresAt);
+    if (!Number.isSafeInteger(expiresAt) || expiresAt <= Date.now()) {
+        if (result.rows.length > 0) {
+            await client.execute({
+                sql: "DELETE FROM admin_sessions WHERE token = ?",
+                args: [token],
+            });
+        }
         return false;
     }
     return true;
@@ -490,6 +502,7 @@ async function initDb() {
     }
     await client.execute(`CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT)`);
     await client.execute(`CREATE TABLE IF NOT EXISTS user_sessions (deviceId TEXT PRIMARY KEY, cartItems TEXT, likedProducts TEXT, abandonedCartCount TEXT, dismissedAbandonedNotifications TEXT)`);
+    await client.execute(`CREATE TABLE IF NOT EXISTS admin_sessions (token TEXT PRIMARY KEY, expiresAt INTEGER NOT NULL)`);
 }
 
 process.on('uncaughtException', (err: any) => {
@@ -542,12 +555,16 @@ async function createServerApp() {
     next();
   });
   app.use(express.json({ limit: "10mb" }));
-  const requireAdminSession: express.RequestHandler = (req, res, next) => {
-    if (!isAdminSessionValid(req)) {
-      res.status(401).json({ error: "Admin authentication required" });
-      return;
+  const requireAdminSession: express.RequestHandler = async (req, res, next) => {
+    try {
+      if (!await isAdminSessionValid(req)) {
+        res.status(401).json({ error: "Admin authentication required" });
+        return;
+      }
+      next();
+    } catch {
+      res.status(500).json({ error: "Admin authentication could not be verified" });
     }
-    next();
   };
 
   // Serve original video frames directly from "صور الفيديو الاول"
@@ -976,7 +993,7 @@ async function createServerApp() {
             });
             inventoryState = "not_deducted";
         } else {
-            if (!isAdminSessionValid(req)) {
+            if (!await isAdminSessionValid(req)) {
                 await transaction.rollback();
                 res.status(401).json({ error: "Admin authentication required" });
                 return;
@@ -1151,7 +1168,7 @@ async function createServerApp() {
   });
 
   // Admin Login Verification
-  app.post("/api/admin/login", (req, res) => {
+  app.post("/api/admin/login", async (req, res) => {
     try {
         const { username, password } = req.body;
         const ip = req.ip || req.socket.remoteAddress || "unknown";
@@ -1173,7 +1190,10 @@ async function createServerApp() {
         if (safeEqual(username, adminUser) && safeEqual(password, adminPass)) {
             failedLoginAttempts.delete(ip);
             const token = randomUUID();
-            adminSessions.set(token, Date.now() + 8 * 60 * 60 * 1000);
+            await client.execute({
+                sql: "INSERT INTO admin_sessions (token, expiresAt) VALUES (?, ?)",
+                args: [token, Date.now() + 8 * 60 * 60 * 1000],
+            });
             res.json({ success: true, token });
         } else {
             const current = failedLoginAttempts.get(ip);
@@ -1188,10 +1208,21 @@ async function createServerApp() {
     }
   });
 
-  app.post("/api/admin/logout", requireAdminSession, (req, res) => {
-    const token = req.header("authorization")?.replace(/^Bearer\s+/i, "");
-    if (token) adminSessions.delete(token);
-    res.status(204).end();
+  app.post("/api/admin/logout", requireAdminSession, async (req, res) => {
+    const token = req.header("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!token) {
+        res.status(401).json({ error: "Admin authentication required" });
+        return;
+    }
+    try {
+        await client.execute({
+            sql: "DELETE FROM admin_sessions WHERE token = ?",
+            args: [token],
+        });
+        res.status(204).end();
+    } catch {
+        res.status(500).json({ error: "Failed to end admin session" });
+    }
   });
 
   // Vite middleware for development
